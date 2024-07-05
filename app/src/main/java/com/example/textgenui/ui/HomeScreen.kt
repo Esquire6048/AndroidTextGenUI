@@ -212,7 +212,7 @@ fun HomeScreen(
                     onClick = {
                         cScope.launch(Dispatchers.IO) {
                             generating = true
-                            val tempText = viewModel.regenerateLastMessages()
+                            viewModel.removeLastMessages()
                             val textgenAPI = TextgenAPI(host = serverAddress)
                             // modify history through viewmodel, not directly. Separation of concerns.
                             // viewModel.addMessage(MsgItem(role = "user", content = tempText))
