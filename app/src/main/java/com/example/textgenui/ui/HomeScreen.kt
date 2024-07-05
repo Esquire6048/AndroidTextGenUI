@@ -209,6 +209,40 @@ fun HomeScreen(
                     content = { Text(text = "-1") }
                 )
                 Button(
+                    onClick = {
+                        cScope.launch(Dispatchers.IO) {
+                            generating = true
+                            val tempText = viewModel.regenerateLastMessages()
+                            val textgenAPI = TextgenAPI(host = serverAddress)
+                            // modify history through viewmodel, not directly. Separation of concerns.
+                            // viewModel.addMessage(MsgItem(role = "user", content = tempText))
+                            viewModel.addMessage(MsgItem(role = "assistant", content = "")) // add an empty message, and modify in real time
+                            // Animate scroll to the end after adding new messages
+                            withContext(Dispatchers.Main) { listState.animateScrollToItem(index = history.lastIndex) }
+
+                            userText = "" // clear input after adding to chatlog
+                            textgenAPI.sendChatMessageStreaming(
+                                history = history,
+                                userBio = llmUserBio,
+                                context = llmContext,
+                                temperature = llmTemperature,
+                                onNewMessageChunk = {
+                                    Log.i(TAG, "NEW CHUNK: <$it>")
+                                    cScope.launch(Dispatchers.Main) {
+                                        viewModel.appendToLastMessage(it) // viewmodel updates should be on main thread
+                                        listState.animateScrollToItem(index = history.lastIndex) // Animate scroll to the last item
+                                    }
+                                })
+                            textToSpeech?.speak(history.last().content, TextToSpeech.QUEUE_FLUSH, null, "utterance-id-1")
+                            //println(">>> Model response (character: ${api.character}): $r1")
+                            PrefUtils.saveHistory(ctx, history)
+                            generating = false
+                        }
+                    },
+                    enabled = !generating,
+                    content = { Text(text = "Regenerate") }
+                )
+                Button(
                     onClick = { textToSpeech?.stop() },
                     content = { Text(text = "Stop voice") }
                 )

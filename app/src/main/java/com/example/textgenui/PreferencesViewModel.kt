@@ -74,6 +74,11 @@ class PreferencesViewModel(private val context: Context) : ViewModel() {
         return temp
     }
 
+    fun regenerateLastMessages(): String {
+        _history.removeLast()
+        return history.last().content
+    }
+
     fun appendToLastMessage(newChunk: String) {
         synchronized(_history) { // thread safe just in case
             val newMsgItem = _history.last().copy(content = _history.last().content + newChunk)
