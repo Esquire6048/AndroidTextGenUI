@@ -203,7 +203,7 @@ fun HomeScreen(
                 )
                 Button(
                     onClick = {
-                        viewModel.removeLastTwoMessages()
+                        userText = viewModel.removeLastTwoMessages()
                         cScope.launch(Dispatchers.IO) { PrefUtils.saveHistory(ctx, history) }
                     },
                     content = { Text(text = "-1") }

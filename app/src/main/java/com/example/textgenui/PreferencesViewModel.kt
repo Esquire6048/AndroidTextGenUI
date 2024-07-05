@@ -63,8 +63,15 @@ class PreferencesViewModel(private val context: Context) : ViewModel() {
         }
     }
 
-    fun removeLastTwoMessages() {
-        repeat(2) { _history.removeLast() }
+//    fun removeLastTwoMessages() {
+//        repeat(2) { _history.removeLast() }
+//    }
+
+    fun removeLastTwoMessages(): String {
+        _history.removeLast()
+        val temp = _history.last().content
+        _history.removeLast()
+        return temp
     }
 
     fun appendToLastMessage(newChunk: String) {
